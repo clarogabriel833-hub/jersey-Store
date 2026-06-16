@@ -1,1 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jersey Store">
+<title>Jersey Store</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#0a0a0f;font-family:-apple-system,BlinkMacSystemFont,sans-serif;color:#fff;min-height:100vh}
+.safe{height:env(safe-area-inset-top,44px);background:#0f0f1a}
+.header{background:#0f0f1a;padding:12px 18px 10px;border-bottom:1px solid #1e1e35;position:sticky;top:0;z-index:50}
+.header h1{font-size:21px;font-weight:700;letter-spacing:-0.5px}
+.header p{font-size:11px;color:#6b7280;margin-top:2px}
+.tabs{display:flex;background:#0f0f1a;border-bottom:1px solid #1e1e35;position:sticky;top:62px;z-index:49}
+.tab{flex:1;text-align:center;padding:11px 0 9px;font-size:12px;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;font-weight:500}
+.tab.on{color:#7c3aed;border-color:#7c3aed;font-weight:700}
+.page{display:none;padding:14px 14px 90px}
+.page.on{display:block}
 
+/* KPIs */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.kcard{background:#16162a;border-radius:15px;padding:13px;border:1px solid #2a2a4a}
+.kcard.wide{grid-column:1/-1}
+.kcard.tap{cursor:pointer}
+.kcard .ki{font-size:20px;margin-bottom:5px}
+.kcard .kl{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.kcard .kv{font-size:21px;font-weight:700}
+.kv.g{color:#34d399}.kv.a{color:#fbbf24}.kv.r{color:#f87171}.kv.p{color:#a78bfa}.kv.b{color:#60a5fa}
+.kcard .kh{font-size:9px;color:#374151;margin-top:2px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.scard{background:#16162a;border-radius:12px;padding:9px 4px;border:1px solid #2a2a4a;text-align:center}
+.scard .si{font-size:17px;margin-bottom:2px}
+.scard .sl{font-size:9px;color:#6b7280;text-transform:uppercase}
+.scard .sv{font-size:17px;font-weight:700;margin-top:2px}
+
+/* FORM */
+.card{background:#16162a;border-radius:16px;padding:14px;margin-bottom:12px;border:1px solid #2a2a4a}
+.card h3{font-size:14px;font-weight:700;margin-bottom:11px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.f{display:flex;flex-direction:column;gap:3px}
+.f.full{grid-column:1/-1}
+.f label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.4px}
+.f input,.f select{background:#0a0a0f;border:1px solid #2a2a4a;border-radius:11px;padding:10px 11px;font-size:14px;color:#fff;font-family:inherit;outline:none;width:100%;-webkit-appearance:none}
+.f select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%236b7280' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;background-color:#0a0a0f;padding-right:30px}
+.trow{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:3px}
+.ti{display:flex;flex-direction:column;align-items:center;gap:2px}
+.ti label{font-size:10px;color:#6b7280;font-weight:700}
+.ti input{background:#0a0a0f;border:1px solid #2a2a4a;border-radius:9px;padding:7px 3px;font-size:13px;color:#fff;text-align:center;font-family:inherit;outline:none;width:100%}
+.btn{width:100%;padding:13px;border-radius:13px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:inherit;margin-top:8px}
+.btn.purple{background:#7c3aed;color:#fff}
+.btn.green{background:#059669;color:#fff}
+.btn.amber{background:#d97706;color:#fff}
+.btn.sm{padding:9px;font-size:13px;margin-top:0;border-radius:11px}
+.btn.red{background:#991b1b;color:#f87171}
+.btn.lilac{background:#1e1e35;color:#a78bfa}
+
+/* SEARCH */
+.sbox{display:flex;align-items:center;gap:9px;background:#16162a;border-radius:13px;padding:9px 13px;margin-bottom:11px;border:1px solid #2a2a4a}
+.sbox input{background:none;border:none;outline:none;color:#fff;font-size:15px;font-family:inherit;flex:1}
+.sbox input::placeholder{color:#4b5563}
+
+/* JERSEY CARD */
+.jcard{background:#16162a;border-radius:15px;padding:13px;margin-bottom:9px;border:1px solid #2a2a4a}
+.jcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px}
+.jcard-name{font-size:15px;font-weight:700}
+.jcard-sub{font-size:11px;color:#a78bfa;margin-top:2px}
+.jcard-price{font-size:16px;font-weight:700;color:#34d399;white-space:nowrap;margin-left:8px}
+.pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;align-items:center}
+.pill{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;background:#1a2035;color:#60a5fa}
+.pill.cap{background:#1a1a2e;color:#9ca3af}
+.jcard-btns{display:flex;gap:7px}
+
+/* PEDIDO CARD */
+.pcard{border-radius:15px;padding:13px;margin-bottom:9px;border:1px solid #2a2a4a;background:#16162a}
+.pcard.pagada{background:#061510;border:2px solid #059669}
+.paid-banner{background:#059669;border-radius:9px;padding:5px 11px;margin-bottom:8px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:5px}
+.pcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px}
+.pcard-name{font-size:15px;font-weight:700}
+.pcard-total{font-size:16px;font-weight:700;color:#34d399;white-space:nowrap;margin-left:8px}
+.pcard-cli{font-size:12px;color:#a78bfa;margin-bottom:3px}
+.pcard-det{font-size:12px;color:#6b7280;margin-bottom:7px}
+.pcard-meta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+.tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px}
+.tag.stk{background:#1a2035;color:#60a5fa}
+.tag.cam{background:#2a2010;color:#fbbf24}
+.tag.ent{background:#1e1535;color:#a78bfa}
+.tag.pag{background:#0f2a1f;color:#34d399}
+.tag.abo{color:#34d399}
+.tag.reu{color:#a78bfa}
+.tag.fal{color:#f87171}
+.pcard-btns{display:flex;gap:6px}
+
+/* FILTROS */
+.chips{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:6px 13px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid #2a2a4a;white-space:nowrap;background:#16162a;color:#9ca3af}
+.chip.on{background:#7c3aed;color:#fff;border-color:#7c3aed}
+.empty{text-align:center;padding:30px 0;color:#4b5563;font-size:14px}
+
+/* SHEET */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:200;align-items:flex-end}
+.overlay.open{display:flex}
+.sheet{background:#16162a;border-radius:22px 22px 0 0;padding:18px 16px calc(22px + env(safe-area-inset-bottom,0px));width:100%;max-height:88vh;overflow-y:auto}
+.sheet-bar{width:38px;height:4px;background:#2a2a4a;border-radius:2px;margin:0 auto 14px}
+.sheet h3{font-size:16px;font-weight:700;margin-bottom:14px}
+.sheet-x{float:right;background:#2a2a4a;border:none;color:#9ca3af;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:15px;font-family:inherit;line-height:28px;text-align:center}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(28px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);color:#fff;padding:11px 18px;border-radius:13px;font-size:14px;font-weight:600;z-index:999;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="safe"></div>
+<div class="header">
+  <h1>⚽ Jersey Store</h1>
+  <p id="hoy"></p>
+</div>
+<div class="tabs">
+  <div class="tab on" onclick="goTab('home',this)">📊 Resumen</div>
+  <div class="tab" onclick="goTab('inv',this)">📦 Jerseys</div>
+  <div class="tab" onclick="goTab('ped',this)">📬 Pedidos</div>
+</div>
+
+<!-- RESUMEN -->
+<div class="page on" id="page-home">
+  <div class="grid2" id="kpis"></div>
+  <div class="stats" id="stats"></div>
+</div>
+
+<!-- JERSEYS -->
+<div class="page" id="page-inv">
+  <div class="card">
+    <h3>+ Agregar jersey</h3>
+    <div class="g2">
+      <div class="f"><label>Nombre / Equipo</label><input id="in" placeholder="Chivas 2025" autocomplete="off"></div>
+      <div class="f"><label>Persona / Dueño</label><input id="ip" placeholder="Juan García" autocomplete="off"></div>
+      <div class="f"><label>Precio venta $</label><input id="ipr" type="number" inputmode="decimal" placeholder="450"></div>
+      <div class="f"><label>Capital $ (costo)</label><input id="ic" type="number" inputmode="decimal" placeholder="200"></div>
+      <div class="f full"><label>Abonado inicial $</label><input id="ia" type="number" inputmode="decimal" placeholder="0" value="0"></div>
+      <div class="f full"><label>Stock por talla</label>
+        <div class="trow">
+          <div class="ti"><label>S</label><input id="ts" type="number" inputmode="numeric" value="0" min="0"></div>
+          <div class="ti"><label>M</label><input id="tm" type="number" inputmode="numeric" value="0" min="0"></div>
+          <div class="ti"><label>L</label><input id="tl" type="number" inputmode="numeric" value="0" min="0"></div>
+          <div class="ti"><label>XL</label><input id="txl" type="number" inputmode="numeric" value="0" min="0"></div>
+          <div class="ti"><label>XXL</label><input id="txxl" type="number" inputmode="numeric" value="0" min="0"></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn purple" onclick="addJersey()">Guardar jersey</button>
+  </div>
+  <div class="sbox"><span style="color:#6b7280">🔍</span><input id="bj" placeholder="Buscar jersey o persona..." oninput="renderInv()" autocomplete="off"></div>
+  <div id="inv-list"></div>
+</div>
+
+<!-- PEDIDOS -->
+<div class="page" id="page-ped">
+  <div class="card">
+    <h3>+ Nuevo pedido</h3>
+    <div class="g2">
+      <div class="f full"><label>Jersey</label>
+        <select id="vj" onchange="updTallas()"><option value="">— Elige jersey —</option></select>
+      </div>
+      <div class="f"><label>Talla</label><select id="vt"><option value="">— Talla —</option></select></div>
+      <div class="f"><label>Cantidad</label><input id="vc" type="number" inputmode="numeric" value="1" min="1"></div>
+      <div class="f full"><label>Nombre del cliente</label><input id="vcl" placeholder="María López" autocomplete="off"></div>
+      <div class="f"><label>Abonado $</label><input id="va" type="number" inputmode="decimal" value="0" min="0"></div>
+      <div class="f"><label>Reutilizado $</label><input id="vr" type="number" inputmode="decimal" value="0" min="0"></div>
+      <div class="f full"><label>Estado</label>
+        <select id="ve">
+          <option value="STK">📦 STK — en stock</option>
+          <option value="CAM">🚚 En camino</option>
+          <option value="ENT">📬 Entregada</option>
+          <option value="PAG">✅ Pagada</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn green" onclick="addPedido()">Registrar pedido</button>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="sbox"><span style="color:#6b7280">🔍</span><input id="bp" placeholder="Buscar pedido o cliente..." oninput="renderPed()" autocomplete="off"></div>
+  <div id="ped-list"></div>
+</div>
+
+<!-- SHEET EDITAR JERSEY -->
+<div class="overlay" id="sh-j" onclick="closeSheet('sh-j')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-bar"></div>
+    <button class="sheet-x" onclick="closeSheet('sh-j')">✕</button>
+    <h3>✏️ Editar jersey</h3>
+    <div class="g2">
+      <div class="f"><label>Nombre / Equipo</label><input id="en" autocomplete="off"></div>
+      <div class="f"><label>Persona / Dueño</label><input id="ep" autocomplete="off"></div>
+      <div class="f"><label>Precio venta $</label><input id="epr" type="number" inputmode="decimal"></div>
+      <div class="f"><label>Capital $ (costo)</label><input id="ec" type="number" inputmode="decimal"></div>
+      <div class="f full"><label>Stock por talla</label>
+        <div class="trow">
+          <div class="ti"><label>S</label><input id="es" type="number" inputmode="numeric" min="0"></div>
+          <div class="ti"><label>M</label><input id="em" type="number" inputmode="numeric" min="0"></div>
+          <div class="ti"><label>L</label><input id="el" type="number" inputmode="numeric" min="0"></div>
+          <div class="ti"><label>XL</label><input id="exl" type="number" inputmode="numeric" min="0"></div>
+          <div class="ti"><label>XXL</label><input id="exxl" type="number" inputmode="numeric" min="0"></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn purple" onclick="saveJersey()">Guardar cambios</button>
+  </div>
+</div>
+
+<!-- SHEET EDITAR PEDIDO -->
+<div class="overlay" id="sh-p" onclick="closeSheet('sh-p')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-bar"></div>
+    <button class="sheet-x" onclick="closeSheet('sh-p')">✕</button>
+    <h3 id="sh-p-title">✏️ Editar pedido</h3>
+    <div class="g2">
+      <div class="f full"><label>Nombre del cliente</label><input id="pcl" autocomplete="off"></div>
+      <div class="f"><label>Abonado $</label><input id="pa" type="number" inputmode="decimal"></div>
+      <div class="f"><label>Reutilizado $</label><input id="pr" type="number" inputmode="decimal"></div>
+      <div class="f full"><label>Estado</label>
+        <select id="pe">
+          <option value="STK">📦 STK</option>
+          <option value="CAM">🚚 En camino</option>
+          <option value="ENT">📬 Entregada</option>
+          <option value="PAG">✅ Pagada</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn purple" onclick="savePedido()">Guardar cambios</button>
+    <button class="btn green" onclick="pagarDesdSheet()" style="margin-top:7px">✅ Marcar como PAGADA</button>
+  </div>
+</div>
+
+<!-- SHEET KPI -->
+<div class="overlay" id="sh-k" onclick="closeSheet('sh-k')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-bar"></div>
+    <button class="sheet-x" onclick="closeSheet('sh-k')">✕</button>
+    <h3 id="sh-k-title">Editar valor</h3>
+    <div class="f"><label id="sh-k-lbl">Valor $</label><input id="kv" type="number" inputmode="decimal"></div>
+    <button class="btn purple" onclick="saveKpi()">Guardar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var TALLAS=['S','M','L','XL','XXL'];
+var db={jerseys:[],pedidos:[],cap_extra:0,reu_extra:0};
+var ejId=null,epId=null,kKey=null,filtro='ALL';
+
+function save(){
+  try{ localStorage.setItem('js_v5', JSON.stringify(db)); }catch(e){}
+}
+function load(){
+  try{
+    var r=localStorage.getItem('js_v5');
+    if(r){ db=JSON.parse(r); }
+  }catch(e){}
+}
+
+function toast(msg,bg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.style.background=bg||'#1d4ed8';
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2300);
+}
+
+function fmt(n){ return '$'+(+n||0).toLocaleString('es-MX',{maximumFractionDigits:0}); }
+function stk(j){ return TALLAS.reduce(function(a,t){return a+(j.tallas[t]||0);},0); }
+
+function goTab(id,el){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
+  el.classList.add('on');
+  document.getElementById('page-'+id).classList.add('on');
+  if(id==='home') renderHome();
+  if(id==='inv'){ renderInv(); fillJerSel(); }
+  if(id==='ped'){ renderPed(); fillJerSel(); }
+  window.scrollTo(0,0);
+}
+
+/* ── RESUMEN ── */
+function renderHome(){
+  var totJ=db.jerseys.reduce(function(a,j){return a+stk(j);},0);
+  var cap=db.jerseys.reduce(function(a,j){return a+(+j.capital||0)*stk(j);},0)+(+db.cap_extra||0);
+  var reu=+db.reu_extra||0;
+  var abo=db.pedidos.reduce(function(a,p){return a+(+p.abonado||0);},0);
+  var tot=db.pedidos.reduce(function(a,p){return a+(+p.precio||0)*(+p.cant||1);},0);
+  var cob=Math.max(0,tot-abo);
+  var gan=abo-cap;
+  var tar=abo-reu;
+  var sc=db.pedidos.filter(function(p){return p.estado==='STK';}).length;
+  var cam=db.pedidos.filter(function(p){return p.estado==='CAM';}).length;
+  var ent=db.pedidos.filter(function(p){return p.estado==='ENT';}).length;
+  var pag=db.pedidos.filter(function(p){return p.estado==='PAG';}).length;
+
+  document.getElementById('kpis').innerHTML=
+    kpi('wide','📦','Total jerseys en stock',totJ+' pzas','b',false)+
+    kpi('tap','💵','Capital invertido',fmt(cap),'a',true,'cap_extra','💵 Capital extra','Capital adicional $')+
+    kpi('tap','♻️','Reutilizado',fmt(reu),'p',true,'reu_extra','♻️ Reutilizado','Dinero reutilizado $')+
+    kpi('','💵','Total abonado',fmt(abo),'g',false)+
+    kpi('','⏳','Por cobrar',fmt(cob),'r',false)+
+    kpi('wide','📈','Ganancia (abonado − capital)',fmt(gan),gan>=0?'g':'r',false)+
+    kpi('wide','💳','Tarjeta (abonado − reutilizado)',fmt(tar),'b',false);
+
+  document.getElementById('stats').innerHTML=
+    sc2('📦','STK',sc,'#60a5fa')+
+    sc2('🚚','Camino',cam,'#fbbf24')+
+    sc2('📬','Entregadas',ent,'#a78bfa')+
+    sc2('✅','Pagadas',pag,'#34d399');
+}
+
+function kpi(cls,ico,lbl,val,col,tap,key,t,l){
+  var onclick=tap?' onclick="openKpi(\''+key+'\',\''+t+'\',\''+l+\')"':'';
+  return '<div class="kcard '+cls+(tap?' tap':'')+'"'+onclick+'>'+
+    '<div class="ki">'+ico+'</div>'+
+    '<div class="kl">'+lbl+'</div>'+
+    '<div class="kv '+col+'">'+val+'</div>'+
+    (tap?'<div class="kh">Toca para editar</div>':'')+
+    '</div>';
+}
+function sc2(ico,lbl,val,col){
+  return '<div class="scard"><div class="si">'+ico+'</div><div class="sl">'+lbl+'</div><div class="sv" style="color:'+col+'">'+val+'</div></div>';
+}
+
+/* ── JERSEYS ── */
+function renderInv(){
+  var q=(document.getElementById('bj').value||'').toLowerCase();
+  var list=db.jerseys.filter(function(j){
+    return !q||j.nombre.toLowerCase().indexOf(q)>=0||(j.persona||'').toLowerCase().indexOf(q)>=0;
+  });
+  var el=document.getElementById('inv-list');
+  if(!list.length){el.innerHTML='<div class="empty">Sin jerseys aún. ¡Agrega el primero!</div>';return;}
+  el.innerHTML=list.map(function(j){
+    var pills=TALLAS.filter(function(t){return j.tallas[t]>0;}).map(function(t){
+      return '<span class="pill">'+t+': '+j.tallas[t]+'</span>';
+    }).join('');
+    return '<div class="jcard">'+
+      '<div class="jcard-top">'+
+        '<div><div class="jcard-name">'+j.nombre+'</div>'+(j.persona?'<div class="jcard-sub">👤 '+j.persona+'</div>':'')+'</div>'+
+        '<div class="jcard-price">'+fmt(j.precio)+'</div>'+
+      '</div>'+
+      '<div class="pills">'+(pills||'<span style="font-size:11px;color:#4b5563">Sin stock</span>')+'<span class="pill cap" style="margin-left:auto">Cap: '+fmt(j.capital)+'</span></div>'+
+      '<div class="jcard-btns">'+
+        '<button class="btn lilac sm" onclick="openEditJ('+j.id+')">✏️ Editar</button>'+
+        '<button class="btn red sm" onclick="delJersey('+j.id+')">🗑️ Eliminar</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function addJersey(){
+  var nom=document.getElementById('in').value.trim();
+  var pre=parseFloat(document.getElementById('ipr').value)||0;
+  var cap=parseFloat(document.getElementById('ic').value)||0;
+  var per=document.getElementById('ip').value.trim();
+  var abo=parseFloat(document.getElementById('ia').value)||0;
+  if(!nom||!pre){toast('⚠️ Ingresa nombre y precio','#b45309');return;}
+  var tallas={};
+  tallas.S=parseInt(document.getElementById('ts').value)||0;
+  tallas.M=parseInt(document.getElementById('tm').value)||0;
+  tallas.L=parseInt(document.getElementById('tl').value)||0;
+  tallas.XL=parseInt(document.getElementById('txl').value)||0;
+  tallas.XXL=parseInt(document.getElementById('txxl').value)||0;
+  db.jerseys.push({id:Date.now(),nombre:nom,persona:per,precio:pre,capital:cap,abonado:abo,tallas:tallas});
+  save();
+  ['in','ip','ipr','ic','ia'].forEach(function(id){document.getElementById(id).value='';});
+  ['ts','tm','tl','txl','txxl'].forEach(function(id){document.getElementById(id).value=0;});
+  toast('✅ Jersey guardado','#059669');
+  renderInv(); renderHome(); fillJerSel();
+}
+
+function openEditJ(id){
+  var j=db.jerseys.find(function(x){return x.id===id;});
+  if(!j)return;
+  ejId=id;
+  document.getElementById('en').value=j.nombre||'';
+  document.getElementById('ep').value=j.persona||'';
+  document.getElementById('epr').value=j.precio||0;
+  document.getElementById('ec').value=j.capital||0;
+  document.getElementById('es').value=j.tallas.S||0;
+  document.getElementById('em').value=j.tallas.M||0;
+  document.getElementById('el').value=j.tallas.L||0;
+  document.getElementById('exl').value=j.tallas.XL||0;
+  document.getElementById('exxl').value=j.tallas.XXL||0;
+  openSheet('sh-j');
+}
+
+function saveJersey(){
+  var j=db.jerseys.find(function(x){return x.id===ejId;});
+  if(!j)return;
+  j.nombre=document.getElementById('en').value.trim()||j.nombre;
+  j.persona=document.getElementById('ep').value.trim();
+  j.precio=parseFloat(document.getElementById('epr').value)||j.precio;
+  j.capital=parseFloat(document.getElementById('ec').value)||0;
+  j.tallas.S=parseInt(document.getElementById('es').value)||0;
+  j.tallas.M=parseInt(document.getElementById('em').value)||0;
+  j.tallas.L=parseInt(document.getElementById('el').value)||0;
+  j.tallas.XL=parseInt(document.getElementById('exl').value)||0;
+  j.tallas.XXL=parseInt(document.getElementById('exxl').value)||0;
+  save(); closeSheet('sh-j'); renderInv(); renderHome(); fillJerSel();
+  toast('✅ Jersey actualizado','#059669');
+}
+
+function delJersey(id){
+  if(!confirm('¿Eliminar este jersey?'))return;
+  db.jerseys=db.jerseys.filter(function(j){return j.id!==id;});
+  save(); renderInv(); renderHome(); fillJerSel();
+  toast('🗑️ Eliminado','#dc2626');
+}
+
+/* ── PEDIDOS ── */
+function fillJerSel(){
+  var s=document.getElementById('vj');
+  if(!s)return;
+  s.innerHTML='<option value="">— Elige jersey —</option>'+
+    db.jerseys.map(function(j){
+      return '<option value="'+j.id+'">'+j.nombre+(j.persona?' ('+j.persona+')':'')+' — '+fmt(j.precio)+'</option>';
+    }).join('');
+}
+
+function updTallas(){
+  var jid=+document.getElementById('vj').value;
+  var j=db.jerseys.find(function(x){return x.id===jid;});
+  var s=document.getElementById('vt');
+  s.innerHTML='<option value="">— Talla —</option>'+(j?TALLAS.filter(function(t){return j.tallas[t]>0;}).map(function(t){
+    return '<option value="'+t+'">'+t+' ('+j.tallas[t]+' disp.)</option>';
+  }).join(''):'');
+}
+
+function addPedido(){
+  var jid=+document.getElementById('vj').value;
+  var tal=document.getElementById('vt').value;
+  var can=parseInt(document.getElementById('vc').value)||1;
+  var cli=document.getElementById('vcl').value.trim();
+  var abo=parseFloat(document.getElementById('va').value)||0;
+  var reu=parseFloat(document.getElementById('vr').value)||0;
+  var est=document.getElementById('ve').value;
+  var j=db.jerseys.find(function(x){return x.id===jid;});
+  if(!j||!tal){toast('⚠️ Selecciona jersey y talla','#b45309');return;}
+  if((j.tallas[tal]||0)<can){toast('⚠️ Stock insuficiente','#dc2626');return;}
+  j.tallas[tal]-=can;
+  db.pedidos.push({
+    id:Date.now(),jerseyId:jid,nombre:j.nombre,talla:tal,
+    cant:can,precio:j.precio,abonado:abo,reutilizado:reu,
+    cliente:cli,estado:est,
+    fecha:new Date().toLocaleDateString('es-MX')
+  });
+  save();
+  document.getElementById('vj').value='';
+  document.getElementById('vt').innerHTML='<option value="">— Talla —</option>';
+  document.getElementById('vcl').value='';
+  document.getElementById('vc').value=1;
+  document.getElementById('va').value=0;
+  document.getElementById('vr').value=0;
+  document.getElementById('ve').value='STK';
+  toast('✅ Pedido registrado','#059669');
+  renderPed(); renderHome(); renderInv();
+}
+
+function renderPed(){
+  var chips=[{k:'ALL',l:'Todos'},{k:'STK',l:'📦 STK'},{k:'CAM',l:'🚚 Camino'},{k:'ENT',l:'📬 Entregadas'},{k:'PAG',l:'✅ Pagadas'}];
+  document.getElementById('chips').innerHTML=chips.map(function(c){
+    return '<div class="chip'+(filtro===c.k?' on':'')+'" onclick="setFilt(\''+c.k+'\')">'+c.l+'</div>';
+  }).join('');
+  var q=(document.getElementById('bp').value||'').toLowerCase();
+  var list=db.pedidos.filter(function(p){
+    var mq=!q||p.nombre.toLowerCase().indexOf(q)>=0||(p.cliente||'').toLowerCase().indexOf(q)>=0;
+    var mf=filtro==='ALL'||p.estado===filtro;
+    return mq&&mf;
+  }).slice().reverse();
+  var el=document.getElementById('ped-list');
+  if(!list.length){el.innerHTML='<div class="empty">Sin pedidos aquí</div>';return;}
+  var SC={STK:'stk',CAM:'cam',ENT:'ent',PAG:'pag'};
+  var SL={STK:'📦 STK',CAM:'🚚 Camino',ENT:'📬 Entregada',PAG:'✅ Pagada'};
+  el.innerHTML=list.map(function(p){
+    var total=p.precio*p.cant;
+    var falta=Math.max(0,total-(+p.abonado||0));
+    var pagada=p.estado==='PAG';
+    return '<div class="pcard'+(pagada?' pagada':'')+'">'+
+      (pagada?'<div class="paid-banner">✅ PAGADA — Saldo liquidado</div>':'')+
+      '<div class="pcard-top">'+
+        '<div>'+
+          '<div class="pcard-name">'+p.nombre+'</div>'+
+          (p.cliente?'<div class="pcard-cli">👤 '+p.cliente+'</div>':'')+
+          '<div class="pcard-det">Talla '+p.talla+' × '+p.cant+' · '+p.fecha+'</div>'+
+        '</div>'+
+        '<div style="text-align:right">'+
+          '<div class="pcard-total">'+fmt(total)+'</div>'+
+          '<span class="tag '+(SC[p.estado]||'stk')+'">'+SL[p.estado]+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="pcard-meta">'+
+        '<span class="tag abo">💵 Abo: '+fmt(p.abonado)+'</span>'+
+        ((+p.reutilizado>0)?'<span class="tag reu">♻️ Reu: '+fmt(p.reutilizado)+'</span>':'')+
+        (!pagada?'<span class="tag fal">⏳ Falta: '+fmt(falta)+'</span>':'<span class="tag pag">✅ Pagado completo</span>')+
+      '</div>'+
+      '<div class="pcard-btns">'+
+        '<button class="btn lilac sm" onclick="openEditP('+p.id+')">✏️ Editar abonos</button>'+
+        (!pagada?'<button class="btn green sm" onclick="pagarDirecto('+p.id+')">✅ Pagada</button>':'')+
+        '<button class="btn red sm" style="flex:0;padding:9px 11px" onclick="delPedido('+p.id+')">🗑️</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function setFilt(k){filtro=k; renderPed();}
+
+function openEditP(id){
+  var p=db.pedidos.find(function(x){return x.id===id;});
+  if(!p)return;
+  epId=id;
+  document.getElementById('pcl').value=p.cliente||'';
+  document.getElementById('pa').value=p.abonado||0;
+  document.getElementById('pr').value=p.reutilizado||0;
+  document.getElementById('pe').value=p.estado||'STK';
+  document.getElementById('sh-p-title').textContent='✏️ '+p.nombre+(p.cliente?' · '+p.cliente:'');
+  openSheet('sh-p');
+}
+
+function savePedido(){
+  var p=db.pedidos.find(function(x){return x.id===epId;});
+  if(!p)return;
+  p.cliente=document.getElementById('pcl').value.trim();
+  p.abonado=parseFloat(document.getElementById('pa').value)||0;
+  p.reutilizado=parseFloat(document.getElementById('pr').value)||0;
+  p.estado=document.getElementById('pe').value;
+  save(); closeSheet('sh-p'); renderPed(); renderHome();
+  toast('✅ Pedido actualizado','#059669');
+}
+
+function pagarDesdSheet(){
+  var p=db.pedidos.find(function(x){return x.id===epId;});
+  if(!p)return;
+  p.cliente=document.getElementById('pcl').value.trim();
+  p.abonado=parseFloat(document.getElementById('pa').value)||0;
+  p.reutilizado=parseFloat(document.getElementById('pr').value)||0;
+  p.estado='PAG';
+  save(); closeSheet('sh-p'); renderPed(); renderHome();
+  toast('✅ ¡Marcada como PAGADA!','#059669');
+}
+
+function pagarDirecto(id){
+  var p=db.pedidos.find(function(x){return x.id===id;});
+  if(!p)return;
+  p.estado='PAG';
+  save(); renderPed(); renderHome();
+  toast('✅ ¡Marcada como PAGADA!','#059669');
+}
+
+function delPedido(id){
+  if(!confirm('¿Eliminar este pedido?'))return;
+  db.pedidos=db.pedidos.filter(function(p){return p.id!==id;});
+  save(); renderPed(); renderHome();
+  toast('🗑️ Eliminado','#dc2626');
+}
+
+function openKpi(key,title,label){
+  kKey=key;
+  document.getElementById('sh-k-title').textContent=title;
+  document.getElementById('sh-k-lbl').textContent=label;
+  document.getElementById('kv').value=db[key]||0;
+  openSheet('sh-k');
+}
+function saveKpi(){
+  db[kKey]=parseFloat(document.getElementById('kv').value)||0;
+  save(); closeSheet('sh-k'); renderHome();
+  toast('✅ Guardado','#059669');
+}
+
+function openSheet(id){document.getElementById(id).classList.add('open');}
+function closeSheet(id){document.getElementById(id).classList.remove('open');}
+
+/* INIT */
+load();
+document.getElementById('hoy').textContent=new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});
+renderHome();
+</script>
+</body>
+</html>
